@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
 const inputClass =
@@ -9,9 +9,11 @@ const inputClass =
 function PinForm({
   submitLabel,
   onSubmit,
+  children,
 }: {
   submitLabel: string;
   onSubmit: (pin: string) => Promise<string | null>;
+  children?: ReactNode;
 }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
@@ -42,6 +44,7 @@ function PinForm({
           required
         />
       </label>
+      {children}
       {error ? (
         <p role="alert" className="rounded-md border border-red-900 bg-midnight-deep px-3 py-2 text-sm text-red-300">
           {error}
@@ -85,21 +88,22 @@ export function SetupForm() {
           setError("");
           return setup(pin);
         }}
-      />
-      <label className="block">
-        <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gold-light">
-          Confirm PIN
-        </span>
-        <input
-          type="password"
-          className={inputClass}
-          value={confirm}
-          autoComplete="new-password"
-          placeholder="Repeat your PIN"
-          onChange={(e) => setConfirm(e.target.value)}
-          required
-        />
-      </label>
+      >
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gold-light">
+            Confirm PIN
+          </span>
+          <input
+            type="password"
+            className={inputClass}
+            value={confirm}
+            autoComplete="new-password"
+            placeholder="Repeat your PIN"
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+          />
+        </label>
+      </PinForm>
       {error ? (
         <p role="alert" className="rounded-md border border-red-900 bg-midnight-deep px-3 py-2 text-sm text-red-300">
           {error}
