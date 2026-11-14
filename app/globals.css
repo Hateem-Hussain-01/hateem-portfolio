@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* Midnight Gold — LOCKED palette. Do not change to any other palette.
+   bg #0B0F1A / #05070D, dark gold-brown #1A1405 / #3A2A05,
+   gold #D4A017, bright gold #F5C518, light gold #F0D060,
+   dark gold #8C6D1F, text #FFF8E1, muted #A8A08A. */
+
+@theme {
+  --color-midnight: #0b0f1a;
+  --color-midnight-deep: #05070d;
+  --color-goldbrown: #1a1405;
+  --color-goldbrown-deep: #3a2a05;
+  --color-gold: #d4a017;
+  --color-gold-bright: #f5c518;
+  --color-gold-light: #f0d060;
+  --color-gold-dark: #8c6d1f;
+  --color-cream: #fff8e1;
+  --color-muted-gold: #a8a08a;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-geist), -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, Consolas, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-midnight-deep);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-midnight-deep);
+}
+
+/* Thin gold scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-midnight-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold-dark);
+  border-radius: 6px;
+}
+
+/* Section reveal-on-scroll (used by public pages; JS adds .is-visible) */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--d, 0s);
+}
+[data-reveal].is-visible,
+.js-disabled [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
