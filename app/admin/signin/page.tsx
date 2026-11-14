@@ -1,10 +1,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { SESSION_COOKIE, isSetup, verifySession } from "@/lib/admin";
 import { SigninForm } from "@/components/admin/AuthForms";
 
 
 export default async function AdminSigninPage() {
+  await connection(); // admin must render per request, never prerendered
   if (!(await isSetup())) redirect("/admin/setup");
   const jar = await cookies();
   if (verifySession(jar.get(SESSION_COOKIE)?.value)) redirect("/admin");
@@ -19,5 +21,6 @@ export default async function AdminSigninPage() {
   );
 }
 
-// Admin pages are auth-gated and must render per request, never prerendered.
+// Admin must render per request: `instant = false` allows a blocking
+// route under cacheComponents, and connection() above opts out of prerendering.
 export const instant = false;
