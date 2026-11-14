@@ -65,6 +65,9 @@ function HeroForm() {
       <LinesField label="Roles" values={hero.roles} onChange={(v) => set({ roles: v })} />
       <Field label="Tagline"><TextArea value={hero.tagline} onChange={(v) => set({ tagline: v })} /></Field>
       <Field label="Status line"><TextInput value={hero.status} onChange={(v) => set({ status: v })} /></Field>
+      <Field label="Profile picture URL" hint="Leave empty to keep the current portrait (/img/hateem-portrait.jpg). Paste a site path such as /img/new-portrait.jpg or an https:// image URL. No file upload: on the live site the filesystem is read-only, so host the image first (commit it under public/img/ or use Supabase Storage) and paste its URL here. External hosts also need images.remotePatterns in next.config.ts before the homepage can display them.">
+        <TextInput value={hero.portraitUrl ?? ""} onChange={(v) => set({ portraitUrl: v.trim() || undefined })} placeholder="/img/hateem-portrait.jpg" />
+      </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Primary CTA label"><TextInput value={hero.ctaPrimary.label} onChange={(v) => set({ ctaPrimary: { ...hero.ctaPrimary, label: v } })} /></Field>
         <Field label="Primary CTA href"><TextInput value={hero.ctaPrimary.href} onChange={(v) => set({ ctaPrimary: { ...hero.ctaPrimary, href: v } })} /></Field>
@@ -90,6 +93,11 @@ function HeroPreview() {
       <p className="text-xs text-muted-gold">{h.ctaPrimary.label} → {h.ctaPrimary.href} · {h.ctaSecondary.label} → {h.ctaSecondary.href}</p>
       <p className="text-xs text-muted-gold">{h.metaLeft}</p>
       <p className="text-xs text-muted-gold">{h.metaRight}</p>
+      <p className="text-xs text-muted-gold">Portrait: {h.portraitUrl ?? "/img/hateem-portrait.jpg (default)"}</p>
+      {h.portraitUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={h.portraitUrl} alt="Portrait preview" className="h-24 w-auto rounded-lg border border-gold-dark/60 object-cover" />
+      ) : null}
     </div>
   );
 }
@@ -528,6 +536,12 @@ function FooterForm() {
     <div className="space-y-4">
       <Field label="Signature"><TextInput value={footer.signature} onChange={(v) => set({ signature: v })} /></Field>
       <Field label="Subline"><TextInput value={footer.subline} onChange={(v) => set({ subline: v })} /></Field>
+      <Field label="CTA heading"><TextInput value={footer.ctaHeading} onChange={(v) => set({ ctaHeading: v })} /></Field>
+      <Field label="Book a call — button label"><TextInput value={footer.ctaBookCallLabel} onChange={(v) => set({ ctaBookCallLabel: v })} /></Field>
+      <Field label="Book a call — email subject"><TextInput value={footer.ctaBookCallSubject} onChange={(v) => set({ ctaBookCallSubject: v })} /></Field>
+      <Field label="Start a project — button label"><TextInput value={footer.ctaStartProjectLabel} onChange={(v) => set({ ctaStartProjectLabel: v })} /></Field>
+      <Field label="Start a project — email subject"><TextInput value={footer.ctaStartProjectSubject} onChange={(v) => set({ ctaStartProjectSubject: v })} /></Field>
+      <LinesField label="Stats" values={footer.stats} onChange={(v) => set({ stats: v })} />
     </div>
   );
 }
@@ -538,6 +552,9 @@ function FooterPreview() {
     <div className="border-t border-gold-dark/60 pt-3 text-center">
       <p className="font-display text-2xl italic text-gold-bright">{content.footer.signature}</p>
       <p className="text-xs uppercase tracking-widest text-muted-gold">{content.footer.subline}</p>
+      <p className="mt-3 font-display text-xl text-cream">{content.footer.ctaHeading}</p>
+      <p className="text-sm text-gold-light">{content.footer.ctaBookCallLabel} · {content.footer.ctaStartProjectLabel}</p>
+      <p className="mt-1 text-xs text-muted-gold">{content.footer.stats.join(" · ")}</p>
     </div>
   );
 }
