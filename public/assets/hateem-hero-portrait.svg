@@ -213,13 +213,13 @@
     </g>
 
     <!-- Name -->
-    <text class="hero-serif hero-rise d3" x="68" y="230" font-size="92" font-weight="300" letter-spacing="-2.5" fill="#FFF8E1">Muhammad Hateem</text>
-    <text class="hero-serif hero-rise d4" x="68" y="318" font-size="92" font-style="italic" font-weight="300" letter-spacing="-2.5" fill="url(#hero-name-grad)">Hussain<tspan fill="#D4A017">.</tspan></text>
+    <text class="hero-serif hero-rise d3" x="68" y="230" font-size="86" font-weight="300" letter-spacing="-2.5" textLength="680" lengthAdjust="spacingAndGlyphs" fill="#FFF8E1">Muhammad Hateem</text>
+    <text class="hero-serif hero-rise d4" x="68" y="318" font-size="86" font-style="italic" font-weight="300" letter-spacing="-2.5" fill="url(#hero-name-grad)">Hussain<tspan fill="#D4A017">.</tspan></text>
 
     <!-- Light sweeping across the name -->
     <g class="hero-fade d6" pointer-events="none">
-      <text class="hero-serif" x="68" y="230" font-size="92" font-weight="300" letter-spacing="-2.5" fill="url(#hero-sheen)">Muhammad Hateem</text>
-      <text class="hero-serif" x="68" y="318" font-size="92" font-style="italic" font-weight="300" letter-spacing="-2.5" fill="url(#hero-sheen)">Hussain.</text>
+      <text class="hero-serif" x="68" y="230" font-size="86" font-weight="300" letter-spacing="-2.5" textLength="680" lengthAdjust="spacingAndGlyphs" fill="url(#hero-sheen)">Muhammad Hateem</text>
+      <text class="hero-serif" x="68" y="318" font-size="86" font-style="italic" font-weight="300" letter-spacing="-2.5" fill="url(#hero-sheen)">Hussain.</text>
     </g>
 
     <!-- Glowing underline -->
