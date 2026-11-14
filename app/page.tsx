@@ -23,7 +23,7 @@ const SOCIAL_LABELS: Record<string, string> = {
 export default async function Home() {
   const content = await loadPublished();
   const contributions = await loadContributions();
-  const { settings, hero, about, recognition, recognitionStrip, projects, toolkit, experience, certifications, connect } =
+  const { settings, hero, about, recognition, recognitionStrip, projects, toolkit, experience, certifications, connect, footer } =
     content;
   const sortedProjects = [...projects].sort((a, b) => a.sortOrder - b.sortOrder);
 
@@ -52,11 +52,12 @@ export default async function Home() {
             data-reveal
           >
             <Image
-              src="/img/hateem-portrait.jpg"
+              src={hero.portraitUrl ?? "/img/hateem-portrait.jpg"}
               alt="Portrait of Muhammad Hateem Hussain"
               width={800}
               height={1000}
               priority
+              unoptimized={Boolean(hero.portraitUrl?.startsWith("http"))}
               className="h-auto w-40 shrink-0 rounded-t-full rounded-b-2xl border border-gold-dark/60 object-cover sm:w-48"
             />
             <div className="text-center sm:text-left">
@@ -391,16 +392,50 @@ export default async function Home() {
             className="h-auto w-full max-w-full py-6"
             loading="lazy"
           />
-          <p className="pb-8 text-center text-sm text-muted-gold">
-            {settings.name} ·{" "}
-            <a href={`mailto:${settings.email}`} className="text-gold-light underline decoration-gold-dark underline-offset-4">
-              {settings.email}
-            </a>{" "}
-            ·{" "}
-            <a href={settings.github} target="_blank" rel="noopener noreferrer" className="text-gold-light underline decoration-gold-dark underline-offset-4">
-              GitHub
-            </a>{" "}
-            · Built with Next.js
+          <div className="pb-10 text-center" data-reveal>
+            <h2 className="font-display text-3xl text-cream sm:text-4xl">{footer.ctaHeading}</h2>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <a
+                href={`mailto:${settings.email}?subject=${encodeURIComponent(footer.ctaBookCallSubject)}`}
+                className="rounded-full bg-gold px-6 py-3 text-sm font-semibold text-midnight-deep transition-colors hover:bg-gold-bright"
+              >
+                {footer.ctaBookCallLabel} ↗
+              </a>
+              <a
+                href={`mailto:${settings.email}?subject=${encodeURIComponent(footer.ctaStartProjectSubject)}`}
+                className="rounded-full border border-gold px-6 py-3 text-sm font-semibold text-gold-light transition-colors hover:bg-goldbrown"
+              >
+                {footer.ctaStartProjectLabel} ↗
+              </a>
+            </div>
+            <p className="mt-8 font-mono text-xs tracking-wide text-muted-gold">
+              {footer.stats.join(" · ")}
+            </p>
+          </div>
+          <nav aria-label="Footer" className="border-t border-gold-dark/40 py-6">
+            <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {[
+                { label: "About", href: "/#about" },
+                { label: "Projects", href: "/#projects" },
+                { label: "Skills", href: "/#skills" },
+                { label: "Achievements", href: "/#achievements" },
+                { label: "Experience", href: "/#experience" },
+                { label: "Contact", href: "/#contact" },
+                { label: "Resume", href: "/resume" },
+              ].map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-sm text-muted-gold underline decoration-gold-dark underline-offset-4 hover:text-gold-light"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <p className="border-t border-gold-dark/40 py-6 text-center text-sm text-muted-gold">
+            © 2026 {settings.name}
           </p>
         </div>
       </footer>
