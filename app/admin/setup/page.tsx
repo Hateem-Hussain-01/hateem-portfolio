@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { isSetup } from "@/lib/admin";
 import { SetupForm } from "@/components/admin/AuthForms";
 
 
 export default async function AdminSetupPage() {
+  await connection(); // admin must render per request, never prerendered
   if (await isSetup()) redirect("/admin/signin");
   return (
     <div className="mx-auto max-w-md">
@@ -18,5 +20,6 @@ export default async function AdminSetupPage() {
   );
 }
 
-// Admin pages are auth-gated and must render per request, never prerendered.
+// Admin must render per request: `instant = false` allows a blocking
+// route under cacheComponents, and connection() above opts out of prerendering.
 export const instant = false;
