@@ -179,7 +179,7 @@ export default async function ResumePage() {
           </section>
 
           <footer className="mt-10 border-t border-gold-dark/40 pt-4 text-sm text-muted-gold">
-            {settings.name} · {settings.email} · Built with Next.js
+            © 2026 {settings.name}
           </footer>
         </article>
       </main>
