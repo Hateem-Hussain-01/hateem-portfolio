@@ -1,29 +1,45 @@
-// Admin auth — PIN-based, first-run setup by Eman himself.
+// Admin auth — email + password, like CodeBettle's login.
 //
-// - The PIN is NEVER hardcoded and NEVER invented by the agent.
-// - On first visit to /admin, Eman sets his own PIN (min 4 chars). It is
-//   stored only as a scrypt hash + salt in data/admin.json (local file,
-//   gitignored — never committed, never pushed).
-// - Sign-in verifies the PIN against the hash and sets an httpOnly session
-//   cookie (HMAC-signed with ADMIN_SESSION_SECRET from .env.local; a random
+// - Single admin account: Muhammad Hateem Hussain. Any ONE of the three
+//   allowlisted emails logs in with the SAME password (the emails are
+//   aliases for one account, not three accounts).
+// - The password is NEVER hardcoded and NEVER invented by the agent.
+//   On first visit to /admin, Eman sets his own password (min 8 chars) on
+//   /admin/setup. It is stored only as a bcrypt hash in data/admin.json
+//   (local file, gitignored — never committed, never pushed).
+// - Sign-in verifies the email against the allowlist and the password
+//   against the bcrypt hash, and sets an httpOnly session cookie
+//   (HMAC-signed with ADMIN_SESSION_SECRET from .env.local; a random
 //   dev fallback is used only when the env var is absent, and sessions then
 //   do not survive restarts).
-// - No forgot-PIN flow exists until a backend/DB exists: if Eman forgets the
-//   PIN, delete data/admin.json (locally) or the admin_users row (Supabase)
-//   and set a new one. The UI says this plainly.
-// - When the Supabase adapter lands, admin_users.pin_hash replaces
-//   data/admin.json; the verify/setup functions keep the same signatures.
+// - Login errors are generic on purpose: the same message for an unknown
+//   email and a wrong password.
+// - No forgot-password flow exists until a backend/DB exists: if Eman
+//   forgets the password, delete data/admin.json (locally) or the
+//   admin_users row (Supabase) and set a new one. The UI says this plainly.
+// - When the Supabase adapter lands, this record moves to admin_users
+//   (name + emails + password hash); the verify/setup functions keep the
+//   same signatures.
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { randomBytes, scrypt as scryptCb, timingSafeEqual, createHmac } from "node:crypto";
-import { promisify } from "node:util";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import bcrypt from "bcryptjs";
+import { ADMIN_EMAILS, ADMIN_NAME } from "./admin-constants";
 
-const scrypt = promisify(scryptCb);
+export { ADMIN_EMAILS, ADMIN_NAME } from "./admin-constants";
+
 const ADMIN_PATH = path.join(process.cwd(), "data", "admin.json");
 export const SESSION_COOKIE = "hateem_admin_session";
 
-type AdminRecord = { pinHash: string; salt: string; createdAt: string };
+const MIN_PASSWORD_LENGTH = 8;
+
+type AdminRecord = {
+  name: string;
+  emails: string[];
+  passwordHash: string;
+  createdAt: string;
+};
 
 export async function isSetup(): Promise<boolean> {
   try {
@@ -42,27 +58,39 @@ async function readAdmin(): Promise<AdminRecord | null> {
   }
 }
 
-export async function setupPin(pin: string): Promise<{ ok: boolean; error?: string }> {
-  if (!pin || pin.length < 4) return { ok: false, error: "PIN must be at least 4 characters." };
-  if (await isSetup()) return { ok: false, error: "Admin PIN is already set. Use sign-in, or delete data/admin.json to reset." };
-  const salt = randomBytes(16).toString("hex");
-  const hash = (await scrypt(pin, salt, 64)) as Buffer;
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+export async function setupCredentials(
+  password: string,
+  confirmPassword: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!password || password.length < MIN_PASSWORD_LENGTH)
+    return { ok: false, error: "Password must be at least 8 characters." };
+  if (password !== confirmPassword) return { ok: false, error: "Passwords do not match." };
+  if (await isSetup())
+    return { ok: false, error: "Admin access is already set up. Use sign-in, or delete data/admin.json to reset." };
+  const passwordHash = await bcrypt.hash(password, 10);
   await fs.mkdir(path.dirname(ADMIN_PATH), { recursive: true });
   await fs.writeFile(
     ADMIN_PATH,
-    JSON.stringify({ pinHash: hash.toString("hex"), salt, createdAt: new Date().toISOString() }, null, 2),
+    JSON.stringify(
+      { name: ADMIN_NAME, emails: [...ADMIN_EMAILS], passwordHash, createdAt: new Date().toISOString() },
+      null,
+      2,
+    ),
     "utf-8",
   );
   return { ok: true };
 }
 
-export async function verifyPin(pin: string): Promise<boolean> {
+export async function verifyCredentials(email: string, password: string): Promise<boolean> {
   const rec = await readAdmin();
   if (!rec) return false;
-  const hash = (await scrypt(pin, rec.salt, 64)) as Buffer;
-  const expected = Buffer.from(rec.pinHash, "hex");
-  if (hash.length !== expected.length) return false;
-  return timingSafeEqual(hash, expected);
+  if (!ADMIN_EMAILS.includes(normalizeEmail(email) as (typeof ADMIN_EMAILS)[number])) return false;
+  if (!password) return false;
+  return bcrypt.compare(password, rec.passwordHash);
 }
 
 function sessionSecret(): string {
