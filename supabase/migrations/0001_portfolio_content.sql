@@ -1,22 +1,16 @@
 -- ============================================================================
 -- Hateem Portfolio — Supabase migration 0001
--- PREPARED ONLY — DO NOT RUN until Eman creates the NEW Supabase project
--- (separate from CodeBettle) and runs this in that project's SQL Editor.
--- No CodeBettle database, project, or keys are used here.
--- Status 21:38 PKT: ALL THREE items for this project are in the Secure
--- Vault as separate connectors — custom.supabase (publishable),
--- custom.supabase-service-role (service-role, server-side ONLY, never in
--- client code, never against CodeBettle), and custom.supabase-database
--- (DATABASE_URL connection string, storage only for deploy time, not an
--- API credential). Still missing: the Project URL (<ref>.supabase.co host)
--- — not supplied yet, so no live API call has been verified for any of
--- them. This VM cannot connect to Postgres — do not attempt live DB calls
--- from here. At deploy time the site will need Vercel env vars DATABASE_URL,
--- NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
--- When the URL arrives, verify with:
---   python3 ~/workspace/custom-connectors/custom.supabase/bin/supabase_api.py --host <ref>.supabase.co --path /rest/v1/
---   python3 ~/workspace/custom-connectors/custom.supabase-service-role/bin/supabase_admin_api.py --host <ref>.supabase.co --path /rest/v1/
--- Until then the site uses the file adapter (data/content.json).
+-- Run this in the NEW portfolio Supabase project
+-- (https://dmhsynrbixejtplcpzva.supabase.co) — SQL Editor, paste + Run.
+-- NEVER run it in the CodeBettle project. No CodeBettle database,
+-- project, or keys are used here.
+-- If 0001 ALREADY ran with the old PIN-era admin_users table (pin_hash +
+-- salt), do NOT re-run this file — run 0002_admin_users_password.sql
+-- instead; it patches admin_users in place.
+-- At deploy time the site needs Vercel env vars NEXT_PUBLIC_SUPABASE_URL
+-- and SUPABASE_SERVICE_ROLE_KEY (real keys, not the PASTE_ placeholders).
+-- This VM cannot connect to Postgres — do not attempt live DB calls
+-- from here.
 -- ============================================================================
 
 -- Content sections (hero, about, recognition, toolkit, commits, connect,
@@ -84,14 +78,20 @@ create table if not exists public.social_links (
   updated_at timestamptz not null default now()
 );
 
--- Admin users. The admin panel is PIN-based: pin_hash is a scrypt hash of
--- the PIN Eman sets on first run (same scheme as lib/admin.ts). No
--- plaintext PIN is ever stored. Only the server (service role) reads this.
+-- Admin users. Email + password login (like CodeBettle): password_hash is
+-- a bcrypt hash of the password Eman sets on first run (see
+-- lib/supabase-admin.ts). emails holds the allowlisted login emails — all
+-- aliases for the single admin account (Muhammad Hateem Hussain). No
+-- plaintext password is ever stored. Only the server (service role)
+-- reads this table — RLS is enabled with no public policies, and the
+-- service-role key bypasses RLS.
 create table if not exists public.admin_users (
   id uuid primary key default gen_random_uuid(),
-  pin_hash text not null,
-  salt text not null,
-  created_at timestamptz not null default now()
+  name text not null default 'Muhammad Hateem Hussain',
+  emails text[] not null default '{}',
+  password_hash text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 -- Seed: section keys the admin panel expects. Content is seeded from
