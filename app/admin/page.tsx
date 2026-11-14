@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SESSION_COOKIE, isSetup, verifySession } from "@/lib/admin";
@@ -8,6 +9,7 @@ import PublishButton from "@/components/admin/PublishButton";
 
 
 async function requireAuth() {
+  await connection(); // admin must render per request, never prerendered
   if (!(await isSetup())) redirect("/admin/setup");
   const jar = await cookies();
   if (!verifySession(jar.get(SESSION_COOKIE)?.value)) redirect("/admin/signin");
@@ -69,5 +71,6 @@ export default async function AdminDashboard() {
   );
 }
 
-// Admin pages are auth-gated and must render per request, never prerendered.
+// Admin must render per request: `instant = false` allows a blocking
+// route under cacheComponents, and connection() above opts out of prerendering.
 export const instant = false;
