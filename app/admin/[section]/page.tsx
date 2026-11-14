@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { redirect, notFound } from "next/navigation";
 import { SESSION_COOKIE, isSetup, verifySession } from "@/lib/admin";
 import { loadContributions, loadDraft } from "@/lib/content";
@@ -11,6 +12,7 @@ export default async function AdminSectionPage({
 }: {
   params: Promise<{ section: string }>;
 }) {
+  await connection(); // admin must render per request, never prerendered
   const { section } = await params;
   if (!findSection(section)) notFound();
   if (!(await isSetup())) redirect("/admin/setup");
@@ -27,5 +29,6 @@ export default async function AdminSectionPage({
   );
 }
 
-// Admin pages are auth-gated and must render per request, never prerendered.
+// Admin must render per request: `instant = false` allows a blocking
+// route under cacheComponents, and connection() above opts out of prerendering.
 export const instant = false;
