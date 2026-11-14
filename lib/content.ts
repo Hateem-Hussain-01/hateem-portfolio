@@ -45,6 +45,14 @@ export type SiteContent = {
     roles: string[];
     tagline: string;
     status: string;
+    // Optional override for the portrait image. Empty/undefined = default
+    // /img/hateem-portrait.jpg. URL only — no file upload: Vercel's
+    // filesystem is read-only at runtime, so a new portrait must be hosted
+    // (e.g. committed under public/img/ or Supabase Storage) and pasted here.
+    // NOTE: app/page.tsx does not read this yet — wire it with
+    // src={hero.portraitUrl ?? "/img/hateem-portrait.jpg"} (external hosts
+    // also need images.remotePatterns in next.config.ts).
+    portraitUrl?: string;
     ctaPrimary: { label: string; href: string };
     ctaSecondary: { label: string; href: string };
     metaLeft: string;
@@ -99,7 +107,16 @@ export type SiteContent = {
     text: string;
     links: { id: string; label: string; href: string; handle: string }[];
   };
-  footer: { signature: string; subline: string };
+  footer: {
+    signature: string;
+    subline: string;
+    ctaHeading: string;
+    ctaBookCallLabel: string;
+    ctaBookCallSubject: string;
+    ctaStartProjectLabel: string;
+    ctaStartProjectSubject: string;
+    stats: string[];
+  };
 };
 
 export interface ContentStore {
