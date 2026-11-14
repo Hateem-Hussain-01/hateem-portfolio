@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { SESSION_COOKIE, verifySession } from "@/lib/admin";
@@ -7,6 +8,7 @@ import SignOutButton from "@/components/admin/SignOutButton";
 
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
+  await connection(); // admin must render per request, never prerendered
   const jar = await cookies();
   const authed = verifySession(jar.get(SESSION_COOKIE)?.value);
 
@@ -53,5 +55,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   );
 }
 
-// Admin pages are auth-gated and must render per request, never prerendered.
+// Admin must render per request: `instant = false` allows a blocking
+// route under cacheComponents, and connection() above opts out of prerendering.
 export const instant = false;
