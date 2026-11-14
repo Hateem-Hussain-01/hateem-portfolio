@@ -13,7 +13,9 @@ export default async function AdminSigninPage() {
   return (
     <div className="mx-auto max-w-md">
       <h1 className="font-display text-2xl text-cream">Admin sign-in</h1>
-      <p className="mt-1 text-sm text-muted-gold">Enter the PIN you set on first run.</p>
+      <p className="mt-1 text-sm text-muted-gold">
+        Sign in with any of your admin emails and the password you set on first run.
+      </p>
       <div className="mt-6 rounded-lg border border-gold-dark/60 bg-midnight p-4">
         <SigninForm />
       </div>
