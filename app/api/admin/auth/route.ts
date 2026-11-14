@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import {
   SESSION_COOKIE,
   isSetup,
-  setupPin,
+  setupCredentials,
   signSession,
-  verifyPin,
+  verifyCredentials,
   verifySession,
 } from "@/lib/admin";
 
@@ -20,13 +20,16 @@ export async function GET() {
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as {
     action?: string;
-    pin?: unknown;
+    email?: unknown;
+    password?: unknown;
+    confirmPassword?: unknown;
   } | null;
   const action = body?.action;
 
   if (action === "setup") {
-    const pin = typeof body?.pin === "string" ? body.pin : "";
-    const result = await setupPin(pin);
+    const password = typeof body?.password === "string" ? body.password : "";
+    const confirmPassword = typeof body?.confirmPassword === "string" ? body.confirmPassword : "";
+    const result = await setupCredentials(password, confirmPassword);
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.error }, { status: 400 });
     }
@@ -34,10 +37,12 @@ export async function POST(req: Request) {
   }
 
   if (action === "signin") {
-    const pin = typeof body?.pin === "string" ? body.pin : "";
-    const ok = await verifyPin(pin);
+    const email = typeof body?.email === "string" ? body.email : "";
+    const password = typeof body?.password === "string" ? body.password : "";
+    const ok = await verifyCredentials(email, password);
     if (!ok) {
-      return NextResponse.json({ ok: false, error: "Wrong PIN." }, { status: 401 });
+      // Generic on purpose: the same message for an unknown email and a wrong password.
+      return NextResponse.json({ ok: false, error: "Email or password is incorrect." }, { status: 401 });
     }
     const jar = await cookies();
     jar.set(SESSION_COOKIE, signSession(), {
