@@ -16,7 +16,10 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="static border-b border-gold-dark/40 bg-midnight-deep/90 backdrop-blur">
+    <>
+      {/* Spacer: the fixed header is out of flow, so this holds its place. */}
+      <div aria-hidden="true" className="h-[65px] md:h-[57px]" />
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-gold-dark/40 bg-midnight-deep/90 backdrop-blur print:static">
       <nav
         className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6"
         aria-label="Main navigation"
@@ -93,5 +96,6 @@ export default function Nav() {
         </div>
       )}
     </header>
+    </>
   );
 }
