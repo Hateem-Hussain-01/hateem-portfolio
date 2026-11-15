@@ -16,7 +16,7 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gold-dark/40 bg-midnight-deep/90 backdrop-blur">
+    <header className="static border-b border-gold-dark/40 bg-midnight-deep/90 backdrop-blur">
       <nav
         className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6"
         aria-label="Main navigation"
